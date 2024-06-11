@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carros</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+    </style>
+    <script>
+    function deleteCar() {
+        var id = document.getElementById("delete_id").value;
+        if (id) {
+            fetch(`/excluir/${id}`, {
+                method: 'DELETE',
+            }).then(response => {
+                if (response.ok) {
+                    alert('Carro excluído com sucesso!');
+                    location.reload();
+                } else {
+                    alert('Erro ao excluir o carro.');
+                }
+            });
+        } else {
+            alert("Por favor, insira um ID válido.");
+        }
+    }
+    
+    function updateCar() {
+        var id = document.getElementById("update_id").value;
+        if (!id) {
+            alert("Por favor, insira o ID do carro a ser atualizado.");
+            return;
+        }
+        var marca = document.getElementById("update_marca").value;
+        var modelo = document.getElementById("update_modelo").value;
+        var ano = document.getElementById("update_ano").value;
+        
+        var data = {};
+        if (marca) {
+            data['marca'] = marca;
+        }
+        if (modelo) {
+            data['modelo'] = modelo;
+        }
+        if (ano) {
+            data['ano'] = ano;
+        }
+
+        fetch(`/atualizar/${id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        }).then(response => {
+            if (response.ok) {
+                alert('Carro atualizado com sucesso!');
+                location.reload();
+            } else {
+                alert('Erro ao atualizar o carro.');
+            }
+        });
+    }
+
+    function resetDatabase() {
+        fetch(`/reiniciar`, {
+            method: 'POST',
+        }).then(response => {
+            if (response.ok) {
+                alert('Banco de dados reiniciado com sucesso!');
+                location.reload();
+            } else {
+                alert('Erro ao reiniciar o banco de dados.');
+            }
+        });
+    }
+</script>
+
+</head>
+<body>
+    <h1>Lista de Carros</h1>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Marca</th>
+            <th>Modelo</th>
+            <th>Ano</th>
+        </tr>
+        {% for carro in carros %}
+        <tr>
+            <td>{{ carro[0] }}</td>
+            <td>{{ carro[1] }}</td>
+            <td>{{ carro[2] }}</td>
+            <td>{{ carro[3] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h2>Ações</h2>
+    <h3>Adicionar Novo Carro</h3>
+    <form action="/adicionar" method="post">
+        <label for="marca">Marca:</label>
+        <input type="text" id="marca" name="marca" required><br><br>
+        <label for="modelo">Modelo:</label>
+        <input type="text" id="modelo" name="modelo" required><br><br>
+        <label for="ano">Ano:</label>
+        <input type="number" id="ano" name="ano" required><br><br>
+        <button type="submit">Adicionar</button>
+    </form>
+
+    <h3>Excluir Carro</h3>
+    <form onsubmit="event.preventDefault(); deleteCar();">
+        <label for="delete_id">ID do Carro:</label>
+        <input type="number" id="delete_id" name="delete_id" required><br><br>
+        <button type="submit">Excluir</button>
+    </form>
+
+    <h3>Atualizar Carro</h3>
+    <form onsubmit="event.preventDefault(); updateCar();">
+        <label for="update_id">ID do Carro:</label>
+        <input type="number" id="update_id" name="update_id" required><br><br>
+        <label for="update_marca">Nova Marca:</label>
+        <input type="text" id="update_marca" name="update_marca"><br><br>
+        <label for="update_modelo">Novo Modelo:</label>
+        <input type="text" id="update_modelo" name="update_modelo"><br><br>
+        <label for="update_ano">Novo Ano:</label>
+        <input type="number" id="update_ano" name="update_ano"><br><br>
+        <button type="submit">Atualizar</button>
+    </form>
+
+    <h3>Reiniciar Banco de Dados</h3>
+    <button onclick="resetDatabase()">Reiniciar</button>
+</body>
+</html>
